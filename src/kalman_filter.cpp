@@ -28,21 +28,18 @@ void KalmanFilter::Init(Eigen::VectorXd& x_in,
 
 void KalmanFilter::Predict()
 {
-    /**
-    TODO: (done)
-      * predict the state
-    */
+    // Reference Lecture 5
+    // Predicts state x
+    /// @todo What about the u part (noise)?
     x_ = F_ * x_;
+
+    // Predicts covariance P
     MatrixXd Ft = F_.transpose();
     P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const Eigen::VectorXd& z)
 {
-    /**
-    TODO: (done)
-      * update the state by using Kalman Filter equations
-    */
     VectorXd z_pred = H_ * x_;
     VectorXd y = z - z_pred;
     MatrixXd Ht = H_.transpose();
@@ -51,15 +48,17 @@ void KalmanFilter::Update(const Eigen::VectorXd& z)
     MatrixXd PHt = P_ * Ht;
     MatrixXd K = PHt * Si;
 
-    // new estimate
+    // Estimate new state and covariance
     x_ = x_ + (K * y);
-    auto x_size = x_.size();
+
+    int x_size = static_cast<int>(x_.size());
     MatrixXd I = MatrixXd::Identity(x_size, x_size);
     P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const Eigen::VectorXd& z)
 {
+    z;
     /**
     TODO:
       * update the state by using Extended Kalman Filter equations
