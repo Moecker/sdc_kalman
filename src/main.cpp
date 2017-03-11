@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     // timestamp)
     while (getline(in_file_, line))
     {
-        if (counter > kMaxMeasurement)
+        if (counter >= kMaxMeasurement)
             break;
         counter++;
 
@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
     size_t N = measurement_pack_list.size();
     for (size_t k = 0; k < N; ++k)
     {
+        std::cout << "Cycle: " << k + 1 << std::endl;
         // start filtering from the second frame (the speed is unknown in the first
         // frame)
         fusionEKF.ProcessMeasurement(measurement_pack_list[k]);

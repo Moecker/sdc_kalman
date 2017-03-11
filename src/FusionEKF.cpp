@@ -8,11 +8,8 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::vector;
 
-FusionEKF::FusionEKF()
+FusionEKF::FusionEKF() : ekf_(), is_initialized_(false), previous_timestamp_(0)
 {
-    is_initialized_ = false;
-    previous_timestamp_ = 0;
-
     // Laster:
     measurement_covariance_R_laser_ = MatrixXd(2, 2);
     measurement_covariance_R_laser_ << 0.0225, 0, 0, 0.0225;
@@ -33,6 +30,7 @@ FusionEKF::FusionEKF()
     ekf_.state_covariance_P_ = MatrixXd(4, 4);
     ekf_.state_covariance_P_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 1000;
 
+    // Those will be filled with either laser of radar covariance / transition
     ekf_.measurement_covariance_R_ = MatrixXd(2, 2);
     ekf_.measurement_transition_H_ = MatrixXd(2, 4);
 
@@ -76,6 +74,7 @@ void FusionEKF::UpdateStep(const MeasurementPackage& measurement_pack)
 {
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
     {
+        cout << "Update with Radar..." << endl;
         // Radar updates
         measurement_transition_H_radar_jacobian_ = tools.CalculateJacobian(ekf_.state_x_);
         ekf_.Init(measurement_transition_H_radar_jacobian_, measurement_covariance_R_radar_);
@@ -83,14 +82,16 @@ void FusionEKF::UpdateStep(const MeasurementPackage& measurement_pack)
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER)
     {
+        cout << "Update with Laser..." << endl;
         // Laser updates
         ekf_.Init(measurement_transition_H_laser_, measurement_covariance_R_laser_);
-        ekf_.Update(measurement_pack.raw_measurements_);
+        // ekf_.Update(measurement_pack.raw_measurements_);
     }
 }
 
 void FusionEKF::PreparePredictionStep(const MeasurementPackage& measurement_pack)
 {
+    cout << "Prediction..." << endl;
     // Compute the time elapsed between the current and previous measurements
     float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0F;  // dt - expressed in seconds
     cout << "Elapsed time dt: " << dt << endl;
@@ -122,33 +123,20 @@ void FusionEKF::PreparePredictionStep(const MeasurementPackage& measurement_pack
 
 void FusionEKF::InitializeWithFirstMasurement(const MeasurementPackage& measurement_pack)
 {
-    /**
-    TODO: (progress)
-      * Initialize the state ekf_.x_ with the first measurement.
-      * Create the covariance matrix.
-      * Remember: you'll need to convert radar from polar to cartesian coordinates.
-    */
-    // first measurement
-    ekf_.state_x_ = VectorXd(4);
-    ekf_.state_x_ << 1, 1, 1, 1;
-    cout << "EKF Initialized to: \n" << ekf_.state_x_ << endl;
-
-    // Kalman is being initialized
-    ekf_.state_x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
-    previous_timestamp_ = measurement_pack.timestamp_;
-
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
     {
-        /**
-        Convert radar from polar to Cartesian coordinates and initialize state.
-        */
+        double ro = measurement_pack.raw_measurements_(0);
+        double phi = measurement_pack.raw_measurements_(1);
+        auto x = ro * cos(phi);
+        auto y = ro * sin(phi);
+        ekf_.state_x_ << x, y, 0, 0;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER)
     {
-        /**
-        Initialize state.
-        */
+        ekf_.state_x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
     }
+    previous_timestamp_ = measurement_pack.timestamp_;
+    cout << "EKF Initialized to: \n" << ekf_.state_x_ << endl;
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
