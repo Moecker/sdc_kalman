@@ -11,19 +11,10 @@ KalmanFilter::~KalmanFilter()
 {
 }
 
-void KalmanFilter::Init(Eigen::VectorXd& x_in,
-                        Eigen::MatrixXd& P_in,
-                        Eigen::MatrixXd& F_in,
-                        Eigen::MatrixXd& H_in,
-                        Eigen::MatrixXd& R_in,
-                        Eigen::MatrixXd& Q_in)
+void KalmanFilter::Init(Eigen::MatrixXd& H_in, Eigen::MatrixXd& R_in)
 {
-    x_ = x_in;
-    P_ = P_in;
-    F_ = F_in;
-    H_ = H_in;
-    R_ = R_in;
-    Q_ = Q_in;
+    measurement_transition_H_ = H_in;
+    measurement_covariance_R_ = R_in;
 }
 
 void KalmanFilter::Predict()
@@ -31,36 +22,33 @@ void KalmanFilter::Predict()
     // Reference Lecture 5
     // Predicts state x
     /// @todo What about the u part (noise)?
-    x_ = F_ * x_;
+    state_x_ = state_transition_F_ * state_x_;
 
     // Predicts covariance P
-    MatrixXd Ft = F_.transpose();
-    P_ = F_ * P_ * Ft + Q_;
+    MatrixXd Ft = state_transition_F_.transpose();
+    state_covariance_P_ = state_transition_F_ * state_covariance_P_ * Ft + process_covariance_Q_;
 }
 
 void KalmanFilter::Update(const Eigen::VectorXd& z)
 {
-    VectorXd z_pred = H_ * x_;
+    // Update State Estimate and uncertainty, prediction or correction step
+    VectorXd z_pred = measurement_transition_H_ * state_x_;
     VectorXd y = z - z_pred;
-    MatrixXd Ht = H_.transpose();
-    MatrixXd S = H_ * P_ * Ht + R_;
+    MatrixXd Ht = measurement_transition_H_.transpose();
+    MatrixXd S = measurement_transition_H_ * state_covariance_P_ * Ht + measurement_covariance_R_;
     MatrixXd Si = S.inverse();
-    MatrixXd PHt = P_ * Ht;
+    MatrixXd PHt = state_covariance_P_ * Ht;
     MatrixXd K = PHt * Si;
 
     // Estimate new state and covariance
-    x_ = x_ + (K * y);
+    state_x_ = state_x_ + (K * y);
 
-    int x_size = static_cast<int>(x_.size());
+    int x_size = static_cast<int>(state_x_.size());
     MatrixXd I = MatrixXd::Identity(x_size, x_size);
-    P_ = (I - K * H_) * P_;
+    state_covariance_P_ = (I - K * measurement_transition_H_) * state_covariance_P_;
 }
 
 void KalmanFilter::UpdateEKF(const Eigen::VectorXd& z)
 {
-    z;
-    /**
-    TODO:
-      * update the state by using Extended Kalman Filter equations
-    */
+    Update(z);
 }

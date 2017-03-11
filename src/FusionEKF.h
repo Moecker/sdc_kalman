@@ -17,9 +17,9 @@ class FusionEKF
     /// @brief Run the whole flow of the Kalman Filter from here.
     void ProcessMeasurement(const MeasurementPackage& measurement_pack);
 
-    void UpdateStep(const MeasurementPackage &measurement_pack);
+    void UpdateStep(const MeasurementPackage& measurement_pack);
 
-    void PreparePredictionStep(const MeasurementPackage &measurement_pack);
+    void PreparePredictionStep(const MeasurementPackage& measurement_pack);
 
     void InitializeWithFirstMasurement(const MeasurementPackage& measurement_pack);
 
@@ -36,10 +36,11 @@ class FusionEKF
     /// @brief tool object used to compute Jacobian and RMSE
     Tools tools;
 
-    Eigen::MatrixXd R_laser_;
-    Eigen::MatrixXd R_radar_;
-    Eigen::MatrixXd H_laser_;
-    Eigen::MatrixXd Hj_;
+    Eigen::MatrixXd measurement_covariance_R_laser_;
+    Eigen::MatrixXd measurement_transition_H_laser_;
+
+    Eigen::MatrixXd measurement_covariance_R_radar_;
+    Eigen::MatrixXd measurement_transition_H_radar_jacobian_;
 };
 
 #endif

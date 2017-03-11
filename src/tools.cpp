@@ -18,7 +18,7 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimat
     VectorXd rmse(4);
     rmse << 0, 0, 0, 0;
 
-    // check the validity of the following inputs:
+    // Check the validity of the following inputs:
     //  * the estimation vector size should not be zero
     //  * the estimation vector size should equal ground truth vector size
     if (estimations.size() != ground_truth.size() || estimations.size() == 0)
@@ -27,53 +27,49 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimat
         return rmse;
     }
 
-    // accumulate squared residuals
+    // Accumulate squared residuals
     for (unsigned int i = 0; i < estimations.size(); ++i)
     {
 
         VectorXd residual = estimations[i] - ground_truth[i];
 
-        // coefficient-wise multiplication
+        // Coefficient-wise multiplication
         residual = residual.array() * residual.array();
         rmse += residual;
     }
 
-    // calculate the mean
+    // Calculate the mean
     rmse = rmse / static_cast<double>(estimations.size());
 
-    // calculate the squared root
+    // Calculate the squared root
     rmse = rmse.array().sqrt();
 
-    // return the result
     return rmse;
 }
 
 Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd& x_state)
 {
-    /**
-    TODO: (done)
-      * Calculate a Jacobian here.
-    */
     MatrixXd Hj(3, 4);
-    // recover state parameters
+
+    // Recover state parameters
     double px = x_state(0);
     double py = x_state(1);
     double vx = x_state(2);
     double vy = x_state(3);
 
-    // pre-compute a set of terms to avoid repeated calculation
+    // Pre-compute a set of terms to avoid repeated calculation
     double c1 = px * px + py * py;
     double c2 = sqrt(c1);
     double c3 = (c1 * c2);
 
-    // check division by zero
+    // Check division by zero
     if (fabs(c1) < 0.0001)
     {
         std::cout << "CalculateJacobian () - Error - Division by Zero" << std::endl;
         return Hj;
     }
 
-    // compute the Jacobian matrix
+    // Compute the Jacobian matrix
     Hj << (px / c2), (py / c2), 0, 0, -(py / c1), (px / c1), 0, 0, py * (vx * py - vy * px) / c3,
         px * (px * vy - py * vx) / c3, px / c2, py / c2;
 
