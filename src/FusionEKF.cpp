@@ -85,7 +85,7 @@ void FusionEKF::UpdateStep(const MeasurementPackage& measurement_pack)
         cout << "Update with Laser..." << endl;
         // Laser updates
         ekf_.Init(measurement_transition_H_laser_, measurement_covariance_R_laser_);
-        // ekf_.Update(measurement_pack.raw_measurements_);
+        ekf_.Update(measurement_pack.raw_measurements_);
     }
 }
 
@@ -112,8 +112,9 @@ void FusionEKF::PreparePredictionStep(const MeasurementPackage& measurement_pack
     float dt_2 = dt * dt;
     float dt_3 = dt_2 * dt;
     float dt_4 = dt_3 * dt;
-    float noise_ax = 0.0F;
-    float noise_ay = 0.0F;
+
+    float noise_ax = 0.00225F;
+    float noise_ay = 0.00225F;
 
     // Set the process covariance matrix Q
     ekf_.process_covariance_Q_ = MatrixXd(4, 4);
