@@ -1,5 +1,4 @@
-#ifndef KALMAN_FILTER_H_
-#define KALMAN_FILTER_H_
+#pragma once
 
 #include "Eigen/Dense"
 
@@ -31,5 +30,3 @@ class KalmanFilter
     Eigen::MatrixXd measurement_transition_H_;
     Eigen::MatrixXd measurement_covariance_R_;
 };
-
-#endif

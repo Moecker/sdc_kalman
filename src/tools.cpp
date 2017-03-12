@@ -4,14 +4,6 @@
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 
-Tools::Tools()
-{
-}
-
-Tools::~Tools()
-{
-}
-
 Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimations,
                                      const std::vector<Eigen::VectorXd>& ground_truth)
 {
@@ -74,14 +66,16 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd& x_state)
     Hj << (px / c2), (py / c2), 0, 0, 
           -(py / c1), (px / c1), 0, 0, 
           py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;
+    // Note that this jacobian is not correctly computed, but not needed in this project    
     // clang-format on
 
     return Hj;
 }
 
+/// @deprecated The forums suggest that we do not need to compute the F_j
 Eigen::MatrixXd Tools::CalculateJacobianStateTrasition(const Eigen::VectorXd& x_state)
 {
-    MatrixXd Hj(4, 4);
+    MatrixXd Fj(4, 4);
 
     // Recover state parameters
     double px = x_state(0);
@@ -97,16 +91,15 @@ Eigen::MatrixXd Tools::CalculateJacobianStateTrasition(const Eigen::VectorXd& x_
     if (fabs(c1) < 0.0001)
     {
         std::cout << "CalculateJacobian () - Error - Division by Zero" << std::endl;
-        return Hj;
+        return Fj;
     }
 
-    // Compute the Jacobian matrix
     // clang-format off
-    Hj << (px / c2), (py / c2), 1, 0,
+    Fj << (px / c2), (py / c2), 1, 0,
           -(py / c1), (px / c1), 0, 1,
           0, 0, 1, 0,
           0, 0, 0, 1;
     // clang-format on
 
-    return Hj;
+    return Fj;
 }

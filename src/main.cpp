@@ -29,7 +29,8 @@ int main(int argc, char* argv[])
     vector<GroundTruthPackage> gt_pack_list;
 
     string line;
-    int kMaxMeasurement = 50;
+    const int kAll = 100000;
+    const int kMaxMeasurement = kAll;
     int counter = 0U;
 
     // prep the measurement packages (each line represents a measurement at a
@@ -75,15 +76,16 @@ int main(int argc, char* argv[])
         // frame)
         fusionEKF.ProcessMeasurement(measurement_pack_list[k]);
 
+        // Write estimations to output file
         OutputEstimations(out_file_, fusionEKF, measurement_pack_list, k, gt_pack_list);
 
+        // Store ground truth and current Kalman state
         estimations.push_back(fusionEKF.ekf_.state_x_);
         ground_truth.push_back(gt_pack_list[k].gt_values_);
     }
 
-    // compute the accuracy (RMSE)
-    Tools tools;
-    std::cout << "Accuracy - RMSE: \n" << tools.CalculateRMSE(estimations, ground_truth) << std::endl;
+    // Compute the accuracy (RMSE)
+    std::cout << "Accuracy - RMSE: \n" << Tools::CalculateRMSE(estimations, ground_truth) << std::endl;
 
     // close files
     if (out_file_.is_open())

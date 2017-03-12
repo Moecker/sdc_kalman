@@ -1,9 +1,9 @@
-#ifndef FusionEKF_H_
-#define FusionEKF_H_
+#pragma once
 
 #include <fstream>
 #include <string>
 #include <vector>
+
 #include "kalman_filter.h"
 #include "measurement_package.h"
 #include "tools.h"
@@ -12,7 +12,7 @@ class FusionEKF
 {
   public:
     FusionEKF();
-    virtual ~FusionEKF();
+    ~FusionEKF() = default;
 
     /// @brief Run the whole flow of the Kalman Filter from here.
     void ProcessMeasurement(const MeasurementPackage& measurement_pack);
@@ -21,6 +21,9 @@ class FusionEKF
     KalmanFilter ekf_;
 
   private:
+    void InitializeMembers();
+    void InitializeEkf();
+
     void InitializeWithFirstMasurement(const MeasurementPackage& measurement_pack);
 
     void PreparePredictionStep(const MeasurementPackage& measurement_pack);
@@ -44,5 +47,3 @@ class FusionEKF
     Eigen::MatrixXd measurement_transition_H_radar_jacobian_;
     Eigen::MatrixXd measurement_covariance_R_radar_;
 };
-
-#endif

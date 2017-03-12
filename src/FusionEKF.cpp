@@ -17,8 +17,14 @@ FusionEKF::FusionEKF()
           measurement_transition_H_radar_jacobian_(MatrixXd(3, 4)),
           measurement_covariance_R_radar_(MatrixXd(3, 3))
 {
+    InitializeMembers();
+    InitializeEkf();
+}
+
+void FusionEKF::InitializeMembers()
+{
     // Laser:
-    const double kLaserUncertainty = 0.0225;
+    const double kLaserUncertainty = 0.0125;
     // clang-format off
     measurement_transition_H_laser_ << 1, 0, 0, 0,
                                        0, 1, 0, 0;
@@ -27,13 +33,16 @@ FusionEKF::FusionEKF()
     // clang-format on
 
     // Radar:
-    const double kRadarUncertainty = 0.1;
+    const double kRadarUncertainty = 0.0225;
     // clang-format off
     measurement_covariance_R_radar_ << kRadarUncertainty, 0, 0,
                                        0, kRadarUncertainty, 0,
                                        0, 0, kRadarUncertainty;
     // clang-format on
+}
 
+void FusionEKF::InitializeEkf()
+{
     // Create a 4D state vector, we don't know yet the values of the x state
     ekf_.state_x_ = VectorXd(4);
 
@@ -55,15 +64,11 @@ FusionEKF::FusionEKF()
     // The initial transition matrix F_
     ekf_.state_transition_F_ = MatrixXd(4, 4);
     // clang-format off
-    ekf_.state_transition_F_ << 1, 0, 1, 0, 
-                                0, 1, 0, 1, 
-                                0, 0, 1, 0, 
+    ekf_.state_transition_F_ << 1, 0, 1, 0,
+                                0, 1, 0, 1,
+                                0, 0, 1, 0,
                                 0, 0, 0, 1;
     // clang-format on
-}
-
-FusionEKF::~FusionEKF()
-{
 }
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage& measurement_pack)
@@ -77,26 +82,23 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage& measurement_pack)
         return;
     }
 
-    /*****************************************************************************
-     *  Prediction
-     ****************************************************************************/
+    // Prediction
     PreparePredictionStep(measurement_pack);
     PredictionStep();
 
-    /*****************************************************************************
-     *  Update
-     ****************************************************************************/
+    // Update
     PrepareUpdateStep();
     UpdateStep(measurement_pack);
 
-    // print the output
+    // Print the current state and covariance
     cout << "New Mean x_: \n" << ekf_.state_x_ << endl;
     cout << "New Covariance P_: \n" << ekf_.state_covariance_P_ << endl;
 }
 
 void FusionEKF::PredictionStep()
 {
-    // ekf_.state_transition_F_ = tools.CalculateJacobianStateTrasition(ekf_.state_x_);
+    /// @note Not needed to compute Fj since we are using a linear motion model
+    // ekf_.state_transition_F_ = Tools::CalculateJacobianStateTrasition(ekf_.state_x_);
     ekf_.Predict();
 }
 
@@ -107,15 +109,19 @@ void FusionEKF::UpdateStep(const MeasurementPackage& measurement_pack)
         // Radar updates
         cout << "Update with Radar..." << endl;
 
-        measurement_transition_H_radar_jacobian_ = tools.CalculateJacobian(ekf_.state_x_);
+        // For radar we need to linearize the measurement transition
+        measurement_transition_H_radar_jacobian_ = Tools::CalculateJacobian(ekf_.state_x_);
+
+        // Init EKF with H and R of radar and update
         ekf_.Init(measurement_transition_H_radar_jacobian_, measurement_covariance_R_radar_);
-        ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+        ekf_.Update(measurement_pack.raw_measurements_);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER)
     {
         // Laser updates
         cout << "Update with Laser..." << endl;
 
+        // Init EKF with H and R of laser and update
         ekf_.Init(measurement_transition_H_laser_, measurement_covariance_R_laser_);
         ekf_.Update(measurement_pack.raw_measurements_);
     }
@@ -151,8 +157,9 @@ void FusionEKF::PreparePredictionStep(const MeasurementPackage& measurement_pack
     float dt_3 = dt_2 * dt;
     float dt_4 = dt_3 * dt;
 
-    float noise_ax = 3.0F;
-    float noise_ay = 3.0F;
+    // The noise for the acceleration.
+    float noise_ax = 5.0F;
+    float noise_ay = 5.0F;
 
     // Set the process covariance matrix Q
     ekf_.process_covariance_Q_ = MatrixXd(4, 4);
@@ -179,8 +186,9 @@ void FusionEKF::InitializeWithFirstMasurement(const MeasurementPackage& measurem
     {
         ekf_.state_x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
     }
+    // UPdate timestamp with current measurment timestamp
     previous_timestamp_ = measurement_pack.timestamp_;
-    cout << "EKF Initialized to: \n" << ekf_.state_x_ << endl;
+    cout << "EKF is initialized to: \n" << ekf_.state_x_ << endl;
 
     // Done initializing, no need to predict or update
     is_initialized_ = true;

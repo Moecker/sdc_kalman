@@ -1,5 +1,4 @@
-#ifndef TOOLS_H_
-#define TOOLS_H_
+#pragma once
 
 #include <vector>
 #include "Eigen/Dense"
@@ -7,17 +6,14 @@
 class Tools
 {
   public:
-    Tools();
-
-    virtual ~Tools();
+    Tools() = default;
+    ~Tools() = default;
 
     /// @brief A helper method to calculate RMSE.
-    Eigen::VectorXd CalculateRMSE(const std::vector<Eigen::VectorXd>& estimations,
-                                  const std::vector<Eigen::VectorXd>& ground_truth);
+    static Eigen::VectorXd CalculateRMSE(const std::vector<Eigen::VectorXd>& estimations,
+                                         const std::vector<Eigen::VectorXd>& ground_truth);
 
     /// @brief A helper method to calculate Jacobians.
-    Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
-    Eigen::MatrixXd CalculateJacobianStateTrasition(const Eigen::VectorXd & x_state);
+    static Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
+    static Eigen::MatrixXd CalculateJacobianStateTrasition(const Eigen::VectorXd& x_state);
 };
-
-#endif
