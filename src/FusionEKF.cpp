@@ -33,7 +33,7 @@ void FusionEKF::InitializeMembers()
     // clang-format on
 
     // Radar:
-    const double kRadarUncertainty = 0.0225;
+    const double kRadarUncertainty = 0.0875;
     // clang-format off
     measurement_covariance_R_radar_ << kRadarUncertainty, 0, 0,
                                        0, kRadarUncertainty, 0,
