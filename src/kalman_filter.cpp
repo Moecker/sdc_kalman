@@ -40,11 +40,13 @@ void KalmanFilter::Update(const Eigen::VectorXd& z)
     MatrixXd PHt = state_covariance_P_ * Ht;
     MatrixXd K = PHt * Si;
 
-    // Estimate new state and covariance
+    // Estimate new state
     state_x_ = state_x_ + (K * y);
 
     int x_size = static_cast<int>(state_x_.size());
     MatrixXd I = MatrixXd::Identity(x_size, x_size);
+
+    // Estimate new covariance
     state_covariance_P_ = (I - K * measurement_transition_H_) * state_covariance_P_;
 }
 

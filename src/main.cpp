@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     vector<GroundTruthPackage> gt_pack_list;
 
     string line;
-    int kMaxMeasurement = 100;
+    int kMaxMeasurement = 50;
     int counter = 0U;
 
     // prep the measurement packages (each line represents a measurement at a

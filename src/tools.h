@@ -17,6 +17,7 @@ class Tools
 
     /// @brief A helper method to calculate Jacobians.
     Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
+    Eigen::MatrixXd CalculateJacobianStateTrasition(const Eigen::VectorXd & x_state);
 };
 
 #endif

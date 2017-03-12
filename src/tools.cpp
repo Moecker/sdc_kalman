@@ -70,8 +70,43 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd& x_state)
     }
 
     // Compute the Jacobian matrix
-    Hj << (px / c2), (py / c2), 0, 0, -(py / c1), (px / c1), 0, 0, py * (vx * py - vy * px) / c3,
-        px * (px * vy - py * vx) / c3, px / c2, py / c2;
+    // clang-format off
+    Hj << (px / c2), (py / c2), 0, 0, 
+          -(py / c1), (px / c1), 0, 0, 
+          py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;
+    // clang-format on
+
+    return Hj;
+}
+
+Eigen::MatrixXd Tools::CalculateJacobianStateTrasition(const Eigen::VectorXd& x_state)
+{
+    MatrixXd Hj(4, 4);
+
+    // Recover state parameters
+    double px = x_state(0);
+    double py = x_state(1);
+    double vx = x_state(2);
+    double vy = x_state(3);
+
+    // Pre-compute a set of terms to avoid repeated calculation
+    double c1 = px * px + py * py;
+    double c2 = sqrt(c1);
+
+    // Check division by zero
+    if (fabs(c1) < 0.0001)
+    {
+        std::cout << "CalculateJacobian () - Error - Division by Zero" << std::endl;
+        return Hj;
+    }
+
+    // Compute the Jacobian matrix
+    // clang-format off
+    Hj << (px / c2), (py / c2), 1, 0,
+          -(py / c1), (px / c1), 0, 1,
+          0, 0, 1, 0,
+          0, 0, 0, 1;
+    // clang-format on
 
     return Hj;
 }

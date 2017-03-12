@@ -5,9 +5,7 @@ set(CMAKE_CXX_COMPILER "g++")
 
 project(ExtendedKF LANGUAGES C CXX)
 
-if (GNU)
-    add_definitions(-std=c++0x)
-endif()
+add_definitions(-std=c++0x)
 
 if (MSVC)
     add_definitions("/MP -D_SCL_SECURE_NO_WARNINGS /W4 /WX /wd4005 /wd4127 /wd4481 /wd4482 /wd4505 /wd4512 /wd4714 /wd4800 /wd4189")
