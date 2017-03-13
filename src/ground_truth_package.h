@@ -1,7 +1,8 @@
-#ifndef GROUND_TRUTH_PACKAGE_H_
-#define GROUND_TRUTH_PACKAGE_H_
+#pragma once
 
 #include "Eigen/Dense"
+
+using Eigen::VectorXd;
 
 class GroundTruthPackage
 {
@@ -14,7 +15,5 @@ class GroundTruthPackage
         RADAR
     } sensor_type_;
 
-    Eigen::VectorXd gt_values_;
+    VectorXd gt_values_;
 };
-
-#endif

@@ -1,7 +1,23 @@
-# Extended Kalman Filter Project Starter Code
+# Extended Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
 
 ---
+
+## Results
+
+![Visualization Data Set 1](results/ekf-visualization1.png)
+![RMSE Data Set 1](results/output1.png)
+
+![Visualization Data Set 2](results/ekf-visualization2.png)
+![RMSE Data Set 2](results/output2.png)
+
+## How To
+Use the configure.bat to configure two project:
+- One for Visual Studio 2015 with MSVC compiler
+- One generating Make file with GNU g++ compiler
+
+Call run_vs or run_make for either compiler.
+Or simply use the command suggested in "Basic Build Instructions"
 
 ## Dependencies
 

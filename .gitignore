@@ -9,3 +9,4 @@ build/
 /_build_vs
 /_build_make
 /.ipynb_checkpoints
+/.~ekf-visualization.ipynb

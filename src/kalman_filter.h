@@ -2,6 +2,9 @@
 
 #include "Eigen/Dense"
 
+using Eigen::VectorXd;
+using Eigen::MatrixXd;
+
 class KalmanFilter
 {
   public:
@@ -9,7 +12,7 @@ class KalmanFilter
     virtual ~KalmanFilter();
 
     /// @brief Init Initializes Kalman filter
-    void Init(Eigen::MatrixXd& H_in, Eigen::MatrixXd& R_in);
+    void Init(MatrixXd& H_in, MatrixXd& R_in);
 
     /// @brief Prediction Predicts the state and the state covariance using the process model
     /// @param delta_T Time between k and k+1 in s
@@ -17,16 +20,16 @@ class KalmanFilter
 
     /// @brief Updates the state by using standard Kalman Filter equations
     /// @param z The measurement at k+1
-    void Update(const Eigen::VectorXd& z);
+    void Update(const VectorXd& z);
 
     /// @brief Updates the state by using Extended Kalman Filter equations
     /// @param z The measurement at k+1
-    void UpdateEKF(const Eigen::VectorXd& z);
+    void UpdateEKF(const VectorXd& z);
 
-    Eigen::VectorXd state_x_;
-    Eigen::MatrixXd state_covariance_P_;
-    Eigen::MatrixXd state_transition_F_;
-    Eigen::MatrixXd process_covariance_Q_;
-    Eigen::MatrixXd measurement_transition_H_;
-    Eigen::MatrixXd measurement_covariance_R_;
+    VectorXd state_x_;
+    MatrixXd state_covariance_P_;
+    MatrixXd state_transition_F_;
+    MatrixXd process_covariance_Q_;
+    MatrixXd measurement_transition_H_;
+    MatrixXd measurement_covariance_R_;
 };

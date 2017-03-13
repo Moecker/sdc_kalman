@@ -5,7 +5,8 @@
 #include <vector>
 
 #include "Eigen/Dense"
-#include "FusionEKF.h"
+
+#include "ekf_fusion.h"
 #include "ground_truth_package.h"
 #include "main_utils.h"
 #include "measurement_package.h"
@@ -29,18 +30,11 @@ int main(int argc, char* argv[])
     vector<GroundTruthPackage> gt_pack_list;
 
     string line;
-    const int kAll = 100000;
-    const int kMaxMeasurement = kAll;
-    int counter = 0U;
 
     // prep the measurement packages (each line represents a measurement at a
     // timestamp)
     while (getline(in_file_, line))
     {
-        if (counter >= kMaxMeasurement)
-            break;
-        counter++;
-
         string sensor_type;
         MeasurementPackage meas_package;
         GroundTruthPackage gt_package;
@@ -63,7 +57,7 @@ int main(int argc, char* argv[])
     // Create a Fusion EKF instance
     FusionEKF fusionEKF;
 
-    // used to compute the RMSE later
+    // Used to compute the RMSE later
     vector<VectorXd> estimations;
     vector<VectorXd> ground_truth;
 
@@ -72,22 +66,21 @@ int main(int argc, char* argv[])
     for (size_t k = 0; k < N; ++k)
     {
         std::cout << "Cycle: " << k + 1 << std::endl;
-        // start filtering from the second frame (the speed is unknown in the first
-        // frame)
+        // Start filtering from the second frame (the speed is unknown in the first frame)
         fusionEKF.ProcessMeasurement(measurement_pack_list[k]);
 
         // Write estimations to output file
         OutputEstimations(out_file_, fusionEKF, measurement_pack_list, k, gt_pack_list);
 
         // Store ground truth and current Kalman state
-        estimations.push_back(fusionEKF.ekf_.state_x_);
+        estimations.push_back(fusionEKF.GetKalmanFilter().state_x_);
         ground_truth.push_back(gt_pack_list[k].gt_values_);
     }
 
     // Compute the accuracy (RMSE)
     std::cout << "Accuracy - RMSE: \n" << Tools::CalculateRMSE(estimations, ground_truth) << std::endl;
 
-    // close files
+    // Close files
     if (out_file_.is_open())
     {
         out_file_.close();

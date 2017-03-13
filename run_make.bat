@@ -2,6 +2,6 @@
 
 cd _build_make\
 make
-ExtendedKF.exe ../data/sample-laser-radar-measurement-data-1.txt ../data/out-1-make.txt 
+ExtendedKalmanFilter.exe ../data/sample-laser-radar-measurement-data-2.txt ../data/out-2.txt 
 
 @endlocal

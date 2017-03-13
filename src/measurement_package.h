@@ -1,7 +1,8 @@
-#ifndef MEASUREMENT_PACKAGE_H_
-#define MEASUREMENT_PACKAGE_H_
+#pragma once
 
 #include "Eigen/Dense"
+
+using Eigen::VectorXd;
 
 class MeasurementPackage
 {
@@ -14,7 +15,5 @@ class MeasurementPackage
         RADAR
     } sensor_type_;
 
-    Eigen::VectorXd raw_measurements_;
+    VectorXd raw_measurements_;
 };
-
-#endif

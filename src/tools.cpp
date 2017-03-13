@@ -1,11 +1,8 @@
-#include "tools.h"
 #include <iostream>
 
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
+#include "tools.h"
 
-Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimations,
-                                     const std::vector<Eigen::VectorXd>& ground_truth)
+VectorXd Tools::CalculateRMSE(const std::vector<VectorXd>& estimations, const std::vector<VectorXd>& ground_truth)
 {
     VectorXd rmse(4);
     rmse << 0, 0, 0, 0;
@@ -22,7 +19,6 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimat
     // Accumulate squared residuals
     for (unsigned int i = 0; i < estimations.size(); ++i)
     {
-
         VectorXd residual = estimations[i] - ground_truth[i];
 
         // Coefficient-wise multiplication
@@ -39,7 +35,7 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd>& estimat
     return rmse;
 }
 
-Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd& x_state)
+MatrixXd Tools::CalculateJacobian(const VectorXd& x_state)
 {
     MatrixXd Hj(3, 4);
 
@@ -66,40 +62,8 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd& x_state)
     Hj << (px / c2), (py / c2), 0, 0, 
           -(py / c1), (px / c1), 0, 0, 
           py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;
-    // Note that this jacobian is not correctly computed, but not needed in this project    
+    // Note that this jacobian is not correctly computed, but not needed in this project
     // clang-format on
 
     return Hj;
-}
-
-/// @deprecated The forums suggest that we do not need to compute the F_j
-Eigen::MatrixXd Tools::CalculateJacobianStateTrasition(const Eigen::VectorXd& x_state)
-{
-    MatrixXd Fj(4, 4);
-
-    // Recover state parameters
-    double px = x_state(0);
-    double py = x_state(1);
-    double vx = x_state(2);
-    double vy = x_state(3);
-
-    // Pre-compute a set of terms to avoid repeated calculation
-    double c1 = px * px + py * py;
-    double c2 = sqrt(c1);
-
-    // Check division by zero
-    if (fabs(c1) < 0.0001)
-    {
-        std::cout << "CalculateJacobian () - Error - Division by Zero" << std::endl;
-        return Fj;
-    }
-
-    // clang-format off
-    Fj << (px / c2), (py / c2), 1, 0,
-          -(py / c1), (px / c1), 0, 1,
-          0, 0, 1, 0,
-          0, 0, 0, 1;
-    // clang-format on
-
-    return Fj;
 }

@@ -7,7 +7,7 @@
 
 #include "Eigen/Dense"
 
-#include "FusionEKF.h"
+#include "ekf_fusion.h"
 #include "ground_truth_package.h"
 #include "measurement_package.h"
 

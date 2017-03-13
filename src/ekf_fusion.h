@@ -8,6 +8,8 @@
 #include "measurement_package.h"
 #include "tools.h"
 
+using Eigen::MatrixXd;
+
 class FusionEKF
 {
   public:
@@ -17,8 +19,8 @@ class FusionEKF
     /// @brief Run the whole flow of the Kalman Filter from here.
     void ProcessMeasurement(const MeasurementPackage& measurement_pack);
 
-    /// @brief Kalman Filter update and prediction math lives in here.
-    KalmanFilter ekf_;
+    /// @brief Returns a reference of the Kalman filter instance
+    KalmanFilter& GetKalmanFilter() { return ekf_; }
 
   private:
     void InitializeMembers();
@@ -38,12 +40,14 @@ class FusionEKF
     /// @brief previous timestamp
     long long previous_timestamp_;
 
-    /// @brief tool object used to compute Jacobian and RMSE
-    Tools tools;
+    /// @brief H and R matrices for laser
+    MatrixXd measurement_transition_H_laser_;
+    MatrixXd measurement_covariance_R_laser_;
 
-    Eigen::MatrixXd measurement_transition_H_laser_;
-    Eigen::MatrixXd measurement_covariance_R_laser_;
+    /// @brief H and R matrices for radar
+    MatrixXd measurement_transition_H_radar_jacobian_;
+    MatrixXd measurement_covariance_R_radar_;
 
-    Eigen::MatrixXd measurement_transition_H_radar_jacobian_;
-    Eigen::MatrixXd measurement_covariance_R_radar_;
+    /// @brief Kalman Filter update and prediction math lives in here.
+    KalmanFilter ekf_;
 };

@@ -1,12 +1,11 @@
-#include "FusionEKF.h"
 #include <iostream>
+
 #include "Eigen/Dense"
+
+#include "ekf_fusion.h"
 #include "tools.h"
 
 using namespace std;
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-using std::vector;
 
 FusionEKF::FusionEKF()
         : ekf_(),
@@ -24,7 +23,7 @@ FusionEKF::FusionEKF()
 void FusionEKF::InitializeMembers()
 {
     // Laser:
-    const double kLaserUncertainty = 0.012;
+    const double kLaserUncertainty = 0.011;
     // clang-format off
     measurement_transition_H_laser_ << 1, 0, 0, 0,
                                        0, 1, 0, 0;
@@ -33,7 +32,7 @@ void FusionEKF::InitializeMembers()
     // clang-format on
 
     // Radar:
-    const double kRadarUncertainty = 0.048;
+    const double kRadarUncertainty = 0.046;
     // clang-format off
     measurement_covariance_R_radar_ << kRadarUncertainty, 0, 0,
                                        0, kRadarUncertainty, 0,
@@ -158,8 +157,8 @@ void FusionEKF::PreparePredictionStep(const MeasurementPackage& measurement_pack
     float dt_4 = dt_3 * dt;
 
     // The noise for the acceleration.
-    float noise_ax = 5.0F;
-    float noise_ay = 5.0F;
+    float noise_ax = 4.9F;
+    float noise_ay = 4.7F;
 
     // Set the process covariance matrix Q
     ekf_.process_covariance_Q_ = MatrixXd(4, 4);
@@ -186,7 +185,7 @@ void FusionEKF::InitializeWithFirstMasurement(const MeasurementPackage& measurem
     {
         ekf_.state_x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
     }
-    // UPdate timestamp with current measurment timestamp
+    // UPdate timestamp with current measurement timestamp
     previous_timestamp_ = measurement_pack.timestamp_;
     cout << "EKF is initialized to: \n" << ekf_.state_x_ << endl;
 

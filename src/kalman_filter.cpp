@@ -11,7 +11,7 @@ KalmanFilter::~KalmanFilter()
 {
 }
 
-void KalmanFilter::Init(Eigen::MatrixXd& H_in, Eigen::MatrixXd& R_in)
+void KalmanFilter::Init(MatrixXd& H_in, MatrixXd& R_in)
 {
     measurement_transition_H_ = H_in;
     measurement_covariance_R_ = R_in;
@@ -48,9 +48,4 @@ void KalmanFilter::Update(const Eigen::VectorXd& z)
 
     // Estimate new covariance
     state_covariance_P_ = (I - K * measurement_transition_H_) * state_covariance_P_;
-}
-
-void KalmanFilter::UpdateEKF(const Eigen::VectorXd& z)
-{
-    Update(z);
 }
