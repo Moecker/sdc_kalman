@@ -24,7 +24,7 @@ FusionEKF::FusionEKF()
 void FusionEKF::InitializeMembers()
 {
     // Laser:
-    const double kLaserUncertainty = 0.0125;
+    const double kLaserUncertainty = 0.012;
     // clang-format off
     measurement_transition_H_laser_ << 1, 0, 0, 0,
                                        0, 1, 0, 0;
@@ -33,7 +33,7 @@ void FusionEKF::InitializeMembers()
     // clang-format on
 
     // Radar:
-    const double kRadarUncertainty = 0.0875;
+    const double kRadarUncertainty = 0.048;
     // clang-format off
     measurement_covariance_R_radar_ << kRadarUncertainty, 0, 0,
                                        0, kRadarUncertainty, 0,
